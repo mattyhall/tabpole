@@ -1,0 +1,14 @@
+{
+ "drums": {"R": "cymr",
+           "S": "sn",
+           "C": "cymc",
+           "T": "tomh",
+           "t": "tommh",
+           "F": "toml",
+           "B": "bd",
+           "H": "hh"
+          },
+ "flam": "f",
+ "open": "O",
+ "double": "d"
+}
