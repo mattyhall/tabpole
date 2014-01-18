@@ -4,6 +4,7 @@ from data import regex, music_text, flam_func, usage
 import json
 from docopt import docopt
 import os.path
+import sys
 
 # These are set later, not constant
 up_drums = ['cymr', 'sn', 'cymc', 'tomh', 'tommh', 'toml', 'hh', 'hho', 'hhho', 'ss', 'tomfl', 'tomfh', 'tomml', 'ss', 'hc']
@@ -139,12 +140,23 @@ def main(lines):
 if __name__ == '__main__':
     args = docopt(usage)
     if args['-c'] is not None:
-        config = json.loads(open(args['-c'], 'r').read())
-        lilypond_drums = config['drums']
-        flam_note = config['flam']
-        double_note = config['double']
-        open_note = config['open']
+        f = args['-c']
+        if not os.path.exists(f):
+            print('Config file {0} does not exist'.format(f))
+            sys.exit()
+        config = json.loads(open(f, 'r').read())
+        try:
+            lilypond_drums = config['drums']
+            flam_note = config['flam']
+            double_note = config['double']
+            open_note = config['open']
+        except IndexError:
+            print('Config files must have values for "flam", "double", "open" and "drums"')
+            sys.exit()
     tab = args['FILE']
+    if not os.path.exists(tab):
+        print('Tab file {0} does not exist'.format(tab))
+        sys.exit()
     output = os.path.splitext(os.path.basename(tab))[0] + '.ly'
     if args['-o'] is not None:
         output = args['-o'] 
