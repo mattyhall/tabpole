@@ -2,8 +2,7 @@ usage = '''Tab to sheet music
 
 Usage:
     tabtosheet.py [options] FILE
-
-Options
+Options:
     -o OUTPUT  the file to write the lilypond document to. Defaults FILE.ly
     -c CONFIG  the config file to use, if there isn't one use defaults
 '''
