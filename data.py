@@ -1,8 +1,9 @@
-usage = '''Tab to sheet music
+usage = '''Tab to sheet music.
 
-Usage:
-    tabpole.py [options] FILE
-Options:
+Usage: tabpole.py [options] FILE
+
+Options
+    -h --help  Show this
     -o OUTPUT  the file to write the lilypond document to. Defaults FILE.ly
     -c CONFIG  the config file to use, if there isn't one use defaults
 '''
