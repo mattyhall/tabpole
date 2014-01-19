@@ -6,7 +6,6 @@ from docopt import docopt
 import os.path
 import sys
 
-# These are set later, not constant
 up_drums = ['cymr', 'sn', 'cymc', 'tomh', 'tommh', 'toml', 'hh', 'hho', 'hhho', 'ss', 'tomfl', 'tomfh', 'tomml', 'ss', 'hc']
 down_drums = ['bd', 'hhp']
 
@@ -54,7 +53,7 @@ def get_note_lengths(empties, bar_length):
         else:
             note_lengths = note_lengths[1:]
 
-def create_music(notes):
+def create_music(notes, lilypond_drums, flam_note, double_note, open_note):
     lilypond = []
     keys = list(notes.keys())
     # a list of tuples with notes. For this example:
@@ -111,7 +110,7 @@ def create_music(notes):
             i += empties
     return lilypond, bars
 
-def main(lines, title='', artist=''):
+def main(lines, lilypond_drums, flam_note, double_note, open_note, title='', artist=''):
     up_music = []
     down_music = []
     bar_length = 16
@@ -125,8 +124,8 @@ def main(lines, title='', artist=''):
                 up[drum_name] = music
             elif lilypond_drums[drum_name] in down_drums:
                 down[drum_name] = music
-        up_music_line, ubars = create_music(up)
-        down_music_line, dbars = create_music(down)
+        up_music_line, ubars = create_music(up, lilypond_drums, flam_note, double_note, open_note)
+        down_music_line, dbars = create_music(down, lilypond_drums, flam_note, double_note, open_note)
         # if there are no bars we want to rest for each bar
         if ubars == 0:
             up_music_line = ['r1'] * dbars 
@@ -170,6 +169,6 @@ if __name__ == '__main__':
     if args['-o'] is not None:
         output = args['-o'] 
     data = open(tab, 'r').read()
-    ly = main(parse_lines(data), title, artist)
+    ly = main(parse_lines(data), lilypond_drums, flam_note, double_note, open_note, title, artist)
     with open(output, 'w') as f:
         f.write(ly)

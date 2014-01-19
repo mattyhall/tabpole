@@ -17,6 +17,7 @@ regex = r'''((\w+       # name of drum - 1 or more alphanumeric characters
               \n)       # a newline to end the line for this drum
              +)         # 1 or more drum lines make up an actual line
            '''
+
 version_text = '\\version "2.16.2"'
 
 layout_text = '''
