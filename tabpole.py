@@ -54,7 +54,7 @@ def get_note_lengths(empties, bar_length):
         else:
             note_lengths = note_lengths[1:]
 
-def create_music(notes, bar_length):
+def create_music(notes):
     lilypond = []
     keys = list(notes.keys())
     # a list of tuples with notes. For this example:
@@ -62,6 +62,7 @@ def create_music(notes, bar_length):
     #    S|--x
     # the result would be [('x','-'), ('-','-'), ('-', 'x')]
     music = list(zip(*notes.values()))
+    bar_length = len(list(takewhile(lambda x: not is_bar(x), music)))
     i = 0
     bars = 0
     while i < len(music):
@@ -124,8 +125,8 @@ def main(lines):
                 up[drum_name] = music
             elif lilypond_drums[drum_name] in down_drums:
                 down[drum_name] = music
-        up_music_line, ubars = create_music(up, bar_length)
-        down_music_line, dbars = create_music(down, bar_length)
+        up_music_line, ubars = create_music(up)
+        down_music_line, dbars = create_music(down)
         # if there are no bars we want to rest for each bar
         if ubars == 0:
             up_music_line = ['r1'] * dbars 
