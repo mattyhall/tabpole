@@ -16,13 +16,6 @@ flam_note = 'f'
 open_note = 'O'
 double_note = 'd'
 
-def parse_lines(text):
-    '''Remove anything which is not notes and group lines together'''
-    parsed = re.findall(regex, text, re.VERBOSE)
-    # remove the last element of the split as it should be an empty line
-    # TODO: Filter out empty strings
-    return [line[0].split('\n')[:-1] for line in parsed]
-
 def get_drum_name(text):
     return text.split('|')[0].replace(' ', '')
 
@@ -32,7 +25,7 @@ def is_empty(notes):
 def is_bar(notes):
     return all(note == '|' for note in notes)
 
-def get_all_drums(lines):
+def get_all_drums(self, lines):
     drums = set()
     for line in lines:
         for drum in line:
@@ -54,92 +47,106 @@ def get_note_lengths(empties, bar_length):
         else:
             note_lengths = note_lengths[1:]
 
-def create_music(notes):
-    lilypond = []
-    keys = list(notes.keys())
-    # a list of tuples with notes. For this example:
-    #    B|x--
-    #    S|--x
-    # the result would be [('x','-'), ('-','-'), ('-', 'x')]
-    music = list(zip(*notes.values()))
-    bar_length = len(list(takewhile(lambda x: not is_bar(x), music)))
-    i = 0
-    bars = 0
-    while i < len(music):
-        note = music[i]
-        if is_empty(note):
-            empties = len(list(takewhile(is_empty, music[i:])))
-            lengths = get_note_lengths(empties, bar_length)
-            lilypond.extend(['r' + str(length) for length in lengths])
-            i += empties
-        elif is_bar(note):
-            i += 1
-            bars += 1
-        else:
-            drums_hit = []
-            double = False
-            hhopen = False
-            flam = False
-            for j, note in enumerate(note):
-                drum = lilypond_drums[keys[j]]
-                if note != '-':
-                    drums_hit.append(drum)
-                if note == double_note:
-                    double = True
-                if note == open_note and drum == 'hh':
-                    hhopen = True
-                if note == flam_note:
-                    flam = True
-            empties = len(list(takewhile(is_empty, music[i+1:]))) + 1
-            lengths = get_note_lengths(empties, bar_length)
-            drums = []
-            for drum in drums_hit:
-                if drum == 'hh' and hhopen:
-                    drums.append('hho')
-                else:
-                    drums.append(drum)
-            # Two hits
-            if double:
-                length = lengths[0] * 2
-                lilypond.append('<' + ' '.join(drums) + '>' + str(length))
-                lilypond.append('<' + ' '.join(drums) + '>' + str(length))
-            elif flam:
-                lilypond.append('\\flam <' + ' '.join(drums) + '>' + str(lengths[0]))
+def parse_lines(text):
+    '''Remove anything which is not notes and group lines together'''
+    parsed = re.findall(regex, text, re.VERBOSE)
+    # remove the last element of the split as it should be an empty line
+    # TODO: Filter out empty strings
+    return [line[0].split('\n')[:-1] for line in parsed]
+
+class TabToSheetMusic:
+    def __init__(self, lilypond_drums, flam_note, double_note, open_note):
+        self.lilypond_drums = lilypond_drums
+        self.flam_note = flam_note
+        self.open_note = open_note
+        self.double_note = double_note
+
+    def generate_lilypond(self, text, title='', artist=''):
+        lines = parse_lines(text)
+        up_music = []
+        down_music = []
+        for line in lines:
+            up = {}
+            down = {}
+            for drum in line:
+                drum_name = get_drum_name(drum)
+                music = '|'.join(drum.split('|')[1:])
+                if lilypond_drums[drum_name] in up_drums:
+                    up[drum_name] = music
+                elif lilypond_drums[drum_name] in down_drums:
+                    down[drum_name] = music
+            up_music_line, ubars = self.create_music(up)
+            down_music_line, dbars = self.create_music(down)
+            # if there are no bars we want to rest for each bar
+            if ubars == 0:
+                up_music_line = ['r1'] * dbars 
+            elif dbars == 0:
+                down_music_line = ['r1'] * ubars
+            up_music.extend(up_music_line)
+            down_music.extend(down_music_line)
+        music = music_text.format(' '.join(up_music), ' '.join(down_music))
+        header = ''
+        if title != '' or artist != '':
+            header = header_text.format(title, artist)
+        return '\n'.join([version_text, layout_text, flam_func, header, music])
+
+
+    def create_music(self, notes):
+        lilypond = []
+        keys = list(notes.keys())
+        # a list of tuples with notes. For this example:
+        #    B|x--
+        #    S|--x
+        # the result would be [('x','-'), ('-','-'), ('-', 'x')]
+        music = list(zip(*notes.values()))
+        bar_length = len(list(takewhile(lambda x: not is_bar(x), music)))
+        i = 0
+        bars = 0
+        while i < len(music):
+            note = music[i]
+            if is_empty(note):
+                empties = len(list(takewhile(is_empty, music[i:])))
+                lengths = get_note_lengths(empties, bar_length)
+                lilypond.extend(['r' + str(length) for length in lengths])
+                i += empties
+            elif is_bar(note):
+                i += 1
+                bars += 1
             else:
-                lilypond.append('<' + ' '.join([drum for drum in drums]) + '>' + str(lengths[0]))
-            lilypond.extend('r' + str(length) for length in lengths[1:])
-            i += empties
-    return lilypond, bars
-
-def main(lines, title='', artist=''):
-    up_music = []
-    down_music = []
-    bar_length = 16
-    for line in lines:
-        up = {}
-        down = {}
-        for drum in line:
-            drum_name = get_drum_name(drum)
-            music = '|'.join(drum.split('|')[1:])
-            if lilypond_drums[drum_name] in up_drums:
-                up[drum_name] = music
-            elif lilypond_drums[drum_name] in down_drums:
-                down[drum_name] = music
-        up_music_line, ubars = create_music(up)
-        down_music_line, dbars = create_music(down)
-        # if there are no bars we want to rest for each bar
-        if ubars == 0:
-            up_music_line = ['r1'] * dbars 
-        elif dbars == 0:
-            down_music_line = ['r1'] * ubars
-        up_music.extend(up_music_line)
-        down_music.extend(down_music_line)
-    music = music_text.format(' '.join(up_music), ' '.join(down_music))
-    header = ''
-    if title != '' or artist != '':
-        header = header_text.format(title, artist)
-    return '\n'.join([version_text, layout_text, flam_func, header, music])
-
+                drums_hit = []
+                double = False
+                hhopen = False
+                flam = False
+                for j, note in enumerate(note):
+                    drum = self.lilypond_drums[keys[j]]
+                    if note != '-':
+                        drums_hit.append(drum)
+                    if note == self.double_note:
+                        double = True
+                    if note == self.open_note and drum == 'hh':
+                        hhopen = True
+                    if note == self.flam_note:
+                        flam = True
+                empties = len(list(takewhile(is_empty, music[i+1:]))) + 1
+                lengths = get_note_lengths(empties, bar_length)
+                drums = []
+                for drum in drums_hit:
+                    if drum == 'hh' and hhopen:
+                        drums.append('hho')
+                    else:
+                        drums.append(drum)
+                # Two hits
+                if double:
+                    length = lengths[0] * 2
+                    lilypond.append('<' + ' '.join(drums) + '>' + str(length))
+                    lilypond.append('<' + ' '.join(drums) + '>' + str(length))
+                elif flam:
+                    lilypond.append('\\flam <' + ' '.join(drums) + '>' + str(lengths[0]))
+                else:
+                    lilypond.append('<' + ' '.join([drum for drum in drums]) + '>' + str(lengths[0]))
+                lilypond.extend('r' + str(length) for length in lengths[1:])
+                i += empties
+        return lilypond, bars
 
 if __name__ == '__main__':
     args = docopt(usage)
@@ -170,6 +177,7 @@ if __name__ == '__main__':
     if args['-o'] is not None:
         output = args['-o'] 
     data = open(tab, 'r').read()
-    ly = main(parse_lines(data), title, artist)
+    
+    ly = TabToSheetMusic(lilypond_drums, flam_note, double_note, open_note).generate_lilypond(data, title, artist)
     with open(output, 'w') as f:
         f.write(ly)
