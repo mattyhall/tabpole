@@ -27,10 +27,10 @@ def get_drum_name(text):
     return text.split('|')[0].replace(' ', '')
 
 def is_empty(notes):
-    return all([note == '-' for note in notes])
+    return all(note == '-' for note in notes)
 
 def is_bar(notes):
-    return all([note == '|' for note in notes])
+    return all(note == '|' for note in notes)
 
 def get_all_drums(lines):
     drums = set()
@@ -107,7 +107,7 @@ def create_music(notes):
                 lilypond.append('\\flam <' + ' '.join(drums) + '>' + str(lengths[0]))
             else:
                 lilypond.append('<' + ' '.join([drum for drum in drums]) + '>' + str(lengths[0]))
-            lilypond.extend(['r' + str(length) for length in lengths[1:]])
+            lilypond.extend('r' + str(length) for length in lengths[1:])
             i += empties
     return lilypond, bars
 
