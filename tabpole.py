@@ -1,6 +1,6 @@
 import re
 from itertools import takewhile
-from data import regex, music_text, flam_func, usage
+from data import regex, music_text, flam_func, usage, layout_text
 import json
 from docopt import docopt
 import os.path
@@ -70,7 +70,6 @@ def create_music(notes, bar_length):
             empties = len(list(takewhile(is_empty, music[i:])))
             lengths = get_note_lengths(empties, bar_length)
             lilypond.extend(['r' + str(length) for length in lengths])
-            lilypond.extend(map(lambda x: 'r' + str(x), lengths))
             i += empties
         elif is_bar(note):
             i += 1
@@ -107,7 +106,7 @@ def create_music(notes, bar_length):
                 lilypond.append('\\flam <' + ' '.join(drums) + '>' + str(lengths[0]))
             else:
                 lilypond.append('<' + ' '.join([drum for drum in drums]) + '>' + str(lengths[0]))
-            lilypond.extend(['r' + str(x) for x in lengths[1:]])
+            lilypond.extend(['r' + str(length) for length in lengths[1:]])
             i += empties
     return lilypond, bars
 
@@ -135,7 +134,7 @@ def main(lines):
         up_music.extend(up_music_line)
         down_music.extend(down_music_line)
     music = music_text.format(' '.join(up_music), ' '.join(down_music))
-    return '\n'.join([flam_func, music])
+    return '\n'.join([layout_text, flam_func, music])
 
 
 if __name__ == '__main__':

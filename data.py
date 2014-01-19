@@ -15,16 +15,30 @@ regex = r'''((\w+       # name of drum - 1 or more alphanumeric characters
               \n)       # a newline to end the line for this drum
              +)         # 1 or more drum lines make up an actual line
            '''
+layout_text = '''\\version "2.16.2"
+#(define mydrums '(
+                   (bassdrum      default #f         -3)
+                   (snare         default #f          1)
+                   (hihat         cross   #f          5)
+                   (halfopenhihat cross   "halfopen"  5)
+                   (pedalhihat    cross   #f         -5)
+                   (openhihat     cross   "open"      5)
+                   (ridecymbal    cross   #f          4)
+                   (crashcymbal   xcircle #f          5)
+                   (hightom       default #f          3)
+                   (himidtom      default #f          2)
+                   (lowtom        default #f         -1)))
+'''
 
 music_text = '''up = \\drummode {{ {0} }}
 down = \\drummode {{ {1} }}
 \\new DrumStaff <<
+    \\set DrumStaff.drumStyleTable = #(alist->hash-table mydrums)
     \\new DrumVoice {{\\voiceOne \\up}}
     \\new DrumVoice {{\\voiceTwo \\down}}
 >>'''
 
 flam_func = '''
-\\version "2.16.2"
 #(define (add-grace-property context-name grob sym val)
    (define (set-prop context)
     (let* ((current (ly:context-property context 'graceSettings))
