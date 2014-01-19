@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block contents %}
+<h1>Tabpole</h1>
+<form method='POST' action='/make'>
+  <div class="row">
+    <div class="large-1 columns"><label class="right inline">Title</label></div>
+    <div class="large-5 columns"><input type="text" name="title"></div>
+    <div class="large-1 columns"><label class="right inline">Artist</label></div>
+    <div class="large-5 columns"><input type="text" name="artist"></div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="large-1 columns"><label class="right inline">Tab</label></div>
+    <div class="large-11 columns"><textarea rows="7"></textarea></div>
+  </div>
+  <h3>Configuration</h3>
+  <h5>Instruments</h5>
+  <div class="row">
+    <div class="large-3 columns">
+      <label>Ride cymbal</label>
+      <input type="text" name="ride" value="R">
+    </div>
+    <div class="large-3 columns">
+      <label>Crash cymbal</label>
+      <input type="text" name="crash" value="C">
+    </div>
+    <div class="large-3 columns">
+      <label>Hi hats</label>
+      <input type="text" name="hihats" value="H">
+    </div>
+    <div class="large-3 columns">
+      <label>Snare</label>
+      <input type="text" name="snare" value="S">
+    </div>
+  </div>
+  <div class="row">
+    <div class="large-3 columns">
+      <label>High tom</label>
+      <input type="text" name="htom" value="HT">
+    </div>
+    <div class="large-3 columns">
+      <label>Medium tom</label>
+      <input type="text" name="mtom" value="MT">
+    </div>
+    <div class="large-3 columns">
+      <label>Floor tom</label>
+      <input type="text" name="ftom" value="FT">
+    </div>
+    <div class="large-3 columns">
+      <label>Bass drum</label>
+      <input type="text" name="bass" value="B">
+    </div>
+  </div>
+  <h5>Notes</h5>
+  <div class="row">
+    <div class="large-4 columns">
+      <label>Flam</label>
+      <input type="text" name="flam" value="f">
+    </div>
+    <div class="large-4 columns">
+      <label>Open hi-hat</label>
+      <input type="text" name="openhh" value="O">
+    </div>
+    <div class="large-4 columns">
+      <label>Double</label>
+      <input type="text" name="double" value="d">
+    </div>
+  </div>
+  <input type="submit" value="Make!">
+</form>
+{% endblock %}

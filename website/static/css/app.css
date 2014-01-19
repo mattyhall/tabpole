@@ -1,0 +1,7 @@
+html * {max-height:1000000px;}
+
+.centre {
+    text-align: center;
+}
+
+textarea { height: auto; }
