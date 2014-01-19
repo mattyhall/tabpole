@@ -10,13 +10,15 @@ Options
     -a ARTIST the artist of the piece to be displayed in a header
 '''
 
-regex = r'''((\w+       # name of drum - 1 or more alphanumeric characters
-              \s*       # whitespace
-              \|        # vertical bar to separate drum name and music
-              [\-\w\|]+ # music - either a hyphen, a alphanumeric character or a vertical bar to separate bars
-              \n)       # a newline to end the line for this drum
-             +)         # 1 or more drum lines make up an actual line
-           '''
+regex = r'''((
+               \w+ # any number of alphanumerics for the drum name
+               \s* # whitespacec
+               \|  # bar to seperate drum name from music
+               .+? # any character, with '?' for none greedy
+               \n) # a whitespace at the end of a drum line
+              +    # many drum lines 
+              \n)  # a trailing newline'''
+
 version_text = '\\version "2.16.2"'
 
 layout_text = '''

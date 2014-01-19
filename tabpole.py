@@ -17,7 +17,7 @@ open_note = 'O'
 double_note = 'd'
 
 def get_drum_name(text):
-    return text.split('|')[0].replace(' ', '')
+    return text.strip().split('|')[0]
 
 def is_empty(notes):
     return all(note == '-' for note in notes)
@@ -49,10 +49,14 @@ def get_note_lengths(empties, bar_length):
 
 def parse_lines(text):
     '''Remove anything which is not notes and group lines together'''
+    # remove any spaces on the left
+    text = '\n'.join([line.lstrip() for line in text.split('\n')])
     parsed = re.findall(regex, text, re.VERBOSE)
     # remove the last element of the split as it should be an empty line
-    # TODO: Filter out empty strings
-    return [line[0].split('\n')[:-1] for line in parsed]
+    lines = []
+    for line in parsed:
+        lines.append(bar for bar in line[0].split('\n') if bar != '')
+    return lines
 
 class TabToSheetMusic:
     def __init__(self, lilypond_drums, flam_note, double_note, open_note):
@@ -62,6 +66,7 @@ class TabToSheetMusic:
         self.double_note = double_note
 
     def generate_lilypond(self, text, title='', artist=''):
+        # remove carriage returns
         text = text.replace('\r', '')
         lines = parse_lines(text)
         up_music = []
@@ -72,9 +77,9 @@ class TabToSheetMusic:
             for drum in line:
                 drum_name = get_drum_name(drum)
                 music = '|'.join(drum.split('|')[1:])
-                if lilypond_drums[drum_name] in up_drums:
+                if self.lilypond_drums[drum_name] in up_drums:
                     up[drum_name] = music
-                elif lilypond_drums[drum_name] in down_drums:
+                elif self.lilypond_drums[drum_name] in down_drums:
                     down[drum_name] = music
             up_music_line, ubars = self.create_music(up)
             down_music_line, dbars = self.create_music(down)
