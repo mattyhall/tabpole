@@ -1,6 +1,6 @@
 import re
 from itertools import takewhile
-from data import regex, music_text, flam_func, usage, layout_text
+from data import regex, music_text, flam_func, usage, layout_text, header_text, version_text
 import json
 from docopt import docopt
 import os.path
@@ -111,7 +111,7 @@ def create_music(notes):
             i += empties
     return lilypond, bars
 
-def main(lines):
+def main(lines, title='', artist=''):
     up_music = []
     down_music = []
     bar_length = 16
@@ -135,7 +135,10 @@ def main(lines):
         up_music.extend(up_music_line)
         down_music.extend(down_music_line)
     music = music_text.format(' '.join(up_music), ' '.join(down_music))
-    return '\n'.join([layout_text, flam_func, music])
+    header = ''
+    if title != '' or artist != '':
+        header = header_text.format(title, artist)
+    return '\n'.join([version_text, layout_text, flam_func, header, music])
 
 
 if __name__ == '__main__':
@@ -154,6 +157,11 @@ if __name__ == '__main__':
         except IndexError:
             print('Config files must have values for "flam", "double", "open" and "drums"')
             sys.exit()
+    title = artist = ''
+    if args['-t'] is not None:
+        title = args['-t']
+    if args['-a'] is not None:
+        artist = args['-a']
     tab = args['FILE']
     if not os.path.exists(tab):
         print('Tab file {0} does not exist'.format(tab))
@@ -162,6 +170,6 @@ if __name__ == '__main__':
     if args['-o'] is not None:
         output = args['-o'] 
     data = open(tab, 'r').read()
-    ly = main(parse_lines(data))
+    ly = main(parse_lines(data), title, artist)
     with open(output, 'w') as f:
         f.write(ly)

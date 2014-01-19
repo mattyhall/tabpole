@@ -8,8 +8,11 @@ Tabpole is a python script that converts drum tabs, like the one that can be fou
 tabpole.py [options] FILE
 
 Options:
+    -h --help  show help
     -o OUTPUT  the file to write the lilypond document to. Defaults to FILE.ly
     -c CONFIG  the config file to use, if there isn't one it uses default settings
+    -t TITLE   the title
+    -a ARTIST  the artist
 ```
 
 You can then run `lilypond --pdf FILE.ly` to generate a PDF file of the tab

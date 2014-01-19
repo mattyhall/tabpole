@@ -3,9 +3,11 @@ usage = '''Tab to sheet music.
 Usage: tabpole.py [options] FILE
 
 Options
-    -h --help  Show this
-    -o OUTPUT  the file to write the lilypond document to. Defaults FILE.ly
-    -c CONFIG  the config file to use, if there isn't one use defaults
+    -h --help show this
+    -o OUTPUT the file to write the lilypond document to. Defaults FILE.ly
+    -c CONFIG the config file to use, if there isn't one use defaults
+    -t TITLE  the title of the piece to be displayed in a header
+    -a ARTIST the artist of the piece to be displayed in a header
 '''
 
 regex = r'''((\w+       # name of drum - 1 or more alphanumeric characters
@@ -15,7 +17,9 @@ regex = r'''((\w+       # name of drum - 1 or more alphanumeric characters
               \n)       # a newline to end the line for this drum
              +)         # 1 or more drum lines make up an actual line
            '''
-layout_text = '''\\version "2.16.2"
+version_text = '\\version "2.16.2"'
+
+layout_text = '''
 #(define mydrums '(
                    (bassdrum      default #f         -3)
                    (snare         default #f          1)
@@ -27,8 +31,12 @@ layout_text = '''\\version "2.16.2"
                    (crashcymbal   xcircle #f          5)
                    (hightom       default #f          3)
                    (himidtom      default #f          2)
-                   (lowtom        default #f         -1)))
-'''
+                   (lowtom        default #f         -1)))'''
+
+header_text = '''\header {{
+    title = "{0}"
+    composer = "{1}"
+}}'''
 
 music_text = '''up = \\drummode {{ {0} }}
 down = \\drummode {{ {1} }}
