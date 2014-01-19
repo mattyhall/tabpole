@@ -6,7 +6,6 @@ from docopt import docopt
 import os.path
 import sys
 
-# These are set later, not constant
 up_drums = ['cymr', 'sn', 'cymc', 'tomh', 'tommh', 'toml', 'hh', 'hho', 'hhho', 'ss', 'tomfl', 'tomfh', 'tomml', 'ss', 'hc']
 down_drums = ['bd', 'hhp']
 
@@ -96,7 +95,6 @@ class TabToSheetMusic:
             header = header_text.format(title, artist)
         return '\n'.join([version_text, layout_text, flam_func, header, music])
 
-
     def create_music(self, notes):
         lilypond = []
         keys = list(notes.keys())
@@ -183,7 +181,6 @@ if __name__ == '__main__':
     if args['-o'] is not None:
         output = args['-o'] 
     data = open(tab, 'r').read()
-    
     ly = TabToSheetMusic(lilypond_drums, flam_note, double_note, open_note).generate_lilypond(data, title, artist)
     with open(output, 'w') as f:
         f.write(ly)
