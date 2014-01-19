@@ -62,6 +62,7 @@ class TabToSheetMusic:
         self.double_note = double_note
 
     def generate_lilypond(self, text, title='', artist=''):
+        text = text.replace('\r', '')
         lines = parse_lines(text)
         up_music = []
         down_music = []
